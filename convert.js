@@ -1,6 +1,9 @@
 /**
  * Converter
+  Unitile code 
  */
+
+ /*
 var filepath = 'data-xperium';
 
 var fs = require('fs');
@@ -15,16 +18,16 @@ fs.readdir(filepath, function(err, files) {
 		var content = fs.readFileSync(filepath + '/' + filename, {encoding: 'utf-8'});
 		JSON.parse(content).forEach(function(value) {
 			var userId = value['header']['userId'];
+
 			if(!(userId in users)) {
 				users[userId] = [];
 			}
-
 			users[userId].push({
 				header: {
-						scriptVersion: value['header']['scriptVersion'],
+						//scriptVersion: value['header']['scriptVersion'],
 						date: filename.substring(0, 10)
 				}, 
-				data: value['data']
+				data: value['body']//value['data']
 			});
 		});
 	});
@@ -48,3 +51,4 @@ fs.readdir(filepath, function(err, files) {
 	
 	console.log('All data are loaded!');
 });
+*/

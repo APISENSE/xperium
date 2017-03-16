@@ -42,7 +42,7 @@
             <div class="form-group">
               <button type="button" class="btn btn-success" btn-checkbox ng-model="bCycleMap"  ng-change="toggleCycleMap()">Cycle paths</button>
               <button type="button" class="btn btn-warning" btn-checkbox ng-model="bClusters"  ng-change="toggleClusters()">Clusters</button>
-              <select id="select-user" class="form-control" ng-model="userId" ng-options="u.user as u.user for u in users" ng-change="getCarbonFootprint()">
+              <select style="display:none;" id="select-user" class="form-control" ng-model="userId" ng-options="u.user as u.user for u in users" ng-change="getCarbonFootprint()">
                 <option value="">-- Please select an user --</option>
               </select>
             </div>

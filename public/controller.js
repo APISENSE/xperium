@@ -1,7 +1,6 @@
 angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 
 .controller('mainController', function($scope, $http) {
-
 	$scope.formData = {};
 
 	/**
@@ -41,18 +40,26 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 	/**
 	 * Update user list.
 	 *
-	 * Note: Definitely not the best solution, but it works
+	 * 
 	 */
 	$scope.updateUsersList = function() {
-		
+
 		var updateList = function(users) {
-			$scope.users = []
+			var i = 0;
+
 			users.forEach(function(user) {
+				var tmpDate = new Date(user.metadata.timestamp), 
+					dateMin = new Date($scope.dates.min.yyyymmdd()),
+					dateMax = new Date($scope.dates.max.yyyymmdd());
 
-				$http.get('/api/' + user.user + '/' + $scope.dates.min.yyyymmdd() + '/' + $scope.dates.max.yyyymmdd())
+				tmpDate = tmpDate.getYear() + "/" + tmpDate.getMonth() + "/" + tmpDate.getDay();
+				dateMin = dateMin.getYear() + "/" + dateMin.getMonth() + "/" + dateMin.getDay()
+				dateMax = dateMax.getYear() + "/" + dateMax.getMonth() + "/" + dateMax.getDay()
+
+				if ((tmpDate >= dateMin) && (tmpDate <= dateMax) && false) {
+					//$http.get('/api/guest'+ i +'/' + $scope.dates.min.yyyymmdd() + '/' + $scope.dates.max.yyyymmdd())
+					$http.get('/api/' + $scope.dates.min.yyyymmdd() + '/' + $scope.dates.max.yyyymmdd())
 					.success(function(data) {
-
-						// rides founds
 						if(data.length > 0) {
 							$scope.users.push(user);
 						}
@@ -60,7 +67,10 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 					.error(function(data) {
 						console.log('Error: ' + data);
 					});
+					i++;
+				}
 			});
+
 		};
 
 		$http.get('/api/users')
@@ -74,14 +84,14 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 	 * Get all rides and associate informations
 	 */
 	$scope.getCarbonFootprint = function() {
-		var userId = $scope.userId,
+		var userId = 1, // Math.floor(Math.random() * 100) + 1,
 			min  = $scope.dates.min,
 			max  = $scope.dates.max;
 
-		$http.get('/api/' + userId + '/' + min.yyyymmdd() + '/' + max.yyyymmdd())
+		//$http.get('/api/' + userId + '/' + min.yyyymmdd() + '/' + max.yyyymmdd())
+		$http.get('/api/' + min.yyyymmdd() + '/' + max.yyyymmdd())
 			.success(function(data) {
 				$scope.rides = data;
-
 				// no rides
 				if(data.length <= 0) {
 					$(".alert").show();
@@ -174,6 +184,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
         require : 'ngModel',
         link : function ($scope, element, attrs, ngModelCtrl) {
             $(function(){
+            	
                 element.dateRangeSlider({
 			    	arrows: false,
 			    	wheelMode: "zoom",
@@ -195,6 +206,9 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			    	}
 			    });
 
+
+			
+
 			    element.on('valuesChanged', function(e, data) {
 			    	// Update slider view
 			    	$scope.$apply(function() {
@@ -206,8 +220,8 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 
 			    	// No user selected
 			    	if ($scope.userId == undefined) {
-			    		return;
-			    	};
+			    		//return;
+			    	}
 
 			    	// Update data
 			    	$scope.getCarbonFootprint($scope.userId);
@@ -272,8 +286,8 @@ function addContent(map, rides) {
 		var p = L.polyline(latLonArray, {color: color})
 				 .addTo(map)
 		  		 .bindPopup('Total distance: '+ ride.distance.toFixed(3) +' km<br>\
-		    Average speed: '+ ride.averageSpeed.toFixed(1) +' km/h<br>\
-		    Average acceleration: '+ ride.averageAcc.toFixed(3) +' m/s&sup2;<br>\
+		    Average speed: NULL'+ ride.averageSpeed.toFixed(1)+' km/h<br>\
+		    Average acceleration: NULL'+ ride.averageAcc.toFixed(3) +' m/s&sup2;<br>\
 		    Max speed: '+ ride.maxSpeed.toFixed(1) +' km/h<br>\
 		    Carbon Footprint: '+ ride.emission.toFixed(1) +' Kg eq. CO₂');
 	});

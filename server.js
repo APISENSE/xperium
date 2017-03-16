@@ -35,8 +35,9 @@ app.configure(function() {
         }
 
         data = JSON.parse(data);
-        if(data.success) {
-	        res.json(data.success);
+        
+        if(data) { // data.sucess
+	        res.json(data);  // data.sucess
         }
     });
 })
@@ -44,20 +45,23 @@ app.configure(function() {
 /**
  * Return all user's rides for a given date in JSON format
  */
-.get('/api/:user/:min/:max', function(req, res) {
-	var user = req.params.user;
+//.get('/api/:user/:min/:max', function(req, res) {
+.get('/api/:min/:max', function(req, res) {
+	//var user = req.params.user;
 	var min = req.params.min;
 	var max = req.params.max;
 
-	apisense.query('rides.js', {user: user, min: min, max: max}, function (err, resp, data) {
+	apisense.query('rides.js', {/*user: user, */min: min, max: max}, function (err, resp, data) {
         if (err) {
         	console.log("error :" + err);
             return;
         }
 
         data = JSON.parse(data);
-        if(data.success) {
-        	var adapter = new RidesAdapter(data.success);
+
+        //if(data.success) {
+        if(data.length > 0) {
+        	var adapter = new RidesAdapter(data);
         	var rides = adapter.computeRides();
 
 	        res.json(rides);
