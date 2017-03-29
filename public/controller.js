@@ -286,8 +286,8 @@ function addContent(map, rides) {
 		var p = L.polyline(latLonArray, {color: color})
 				 .addTo(map)
 		  		 .bindPopup('Total distance: '+ ride.distance.toFixed(3) +' km<br>\
-		    Average speed: NULL'+ ride.averageSpeed.toFixed(1)+' km/h<br>\
-		    Average acceleration: NULL'+ ride.averageAcc.toFixed(3) +' m/s&sup2;<br>\
+		    Average speed: NULL'+ /*ride.averageSpeed.toFixed(1)*/ +' km/h<br>\
+		    Average acceleration: NULL'+ /*ride.averageAcc.toFixed(3)*/ +' m/s&sup2;<br>\
 		    Max speed: '+ ride.maxSpeed.toFixed(1) +' km/h<br>\
 		    Carbon Footprint: '+ ride.emission.toFixed(1) +' Kg eq. CO₂');
 	});
