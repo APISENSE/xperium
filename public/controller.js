@@ -1,3 +1,4 @@
+
 angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 
 .controller('mainController', function($scope, $http) {
@@ -8,14 +9,14 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 	 */
 	var osm = new L.TileLayer(
 		'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			minZoom: 8, 
-			maxZoom: 20, 
+			minZoom: 8,
+			maxZoom: 20,
 			attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 		});
 
 	var ocm = new L.TileLayer(
 		'http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png', {
-			minZoom: 8, 
+			minZoom: 8,
 			maxZoom: 20,
 			attribution: 'Map data &copy; <a href="http://www.opencyclemap.org">OpenCycleMap</a> contributors'
 		});
@@ -40,7 +41,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 	/**
 	 * Update user list.
 	 *
-	 * 
+	 * Note: Definitely not the best solution, but it works
 	 */
 	$scope.updateUsersList = function() {
 
@@ -48,15 +49,19 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			var i = 0;
 
 			users.forEach(function(user) {
-				var tmpDate = new Date(user.metadata.timestamp), 
+				var tmpDate = new Date(user.metadata.timestamp),
 					dateMin = new Date($scope.dates.min.yyyymmdd()),
 					dateMax = new Date($scope.dates.max.yyyymmdd());
+
+
+					GLOBALMINDATE = dateMin;
+					GLOBALMAXDATE = dateMax;
 
 				tmpDate = tmpDate.getYear() + "/" + tmpDate.getMonth() + "/" + tmpDate.getDay();
 				dateMin = dateMin.getYear() + "/" + dateMin.getMonth() + "/" + dateMin.getDay()
 				dateMax = dateMax.getYear() + "/" + dateMax.getMonth() + "/" + dateMax.getDay()
 
-				if ((tmpDate >= dateMin) && (tmpDate <= dateMax) && false) {
+				if ((tmpDate >= dateMin) && (tmpDate <= dateMax)) {
 					//$http.get('/api/guest'+ i +'/' + $scope.dates.min.yyyymmdd() + '/' + $scope.dates.max.yyyymmdd())
 					$http.get('/api/' + $scope.dates.min.yyyymmdd() + '/' + $scope.dates.max.yyyymmdd())
 					.success(function(data) {
@@ -77,7 +82,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			.success( updateList )
 			.error(function(data) {
 				console.log('Error: ' + data);
-			});	
+			});
 	}
 
 	/**
@@ -99,7 +104,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 					$(".alert").hide();
 				}
 
-				/* 
+				/*
 				 * - Compute the global footprint
 				 * - Compute the global footprint per km
 				 * - Aggregate successive rides using the same transportation
@@ -118,7 +123,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 						$scope.aggRides[prev].distance += ride.distance;
 						$scope.aggRides[prev].emission += ride.emission;
 						$scope.aggRides[prev].numberOfRides += 1;
-						
+
 					} else {
 						// define path color
 						var colorClass;
@@ -184,7 +189,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
         require : 'ngModel',
         link : function ($scope, element, attrs, ngModelCtrl) {
             $(function(){
-            	
+
                 element.dateRangeSlider({
 			    	arrows: false,
 			    	wheelMode: "zoom",
@@ -192,11 +197,11 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 						days: 1
 					},
 					bounds:{
-					    min: new Date(2013, 10, 02),
+					    min: new Date(2017, 03, 01),
 					    max: new Date()
 					  },
 					defaultValues: {
-						min: new Date(2013, 11, 28),
+						min: new Date(2017, 03, 01),
 						max: new Date()
 					},
 					range: {
@@ -207,7 +212,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			    });
 
 
-			
+
 
 			    element.on('valuesChanged', function(e, data) {
 			    	// Update slider view
@@ -237,7 +242,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 function clearMap(m) {
     for(i in m._layers) {
         if(m._layers[i]._path == undefined) {
-        	continue;   
+        	continue;
         }
 
         try {
@@ -256,7 +261,7 @@ function addContent(map, rides) {
 
 	rides.forEach(function(ride) {
 		/*
-		 * Build a array of all position and make markers 
+		 * Build a array of all position and make markers
 		 * to give some information about the current position (speed, etc.)
 		 */
 		var latLonArray = [];
@@ -275,20 +280,29 @@ function addContent(map, rides) {
 		case 'car':
 			color = 'red'; break;
 		case 'walking':
-			color = 'green'; break;
+			color = 'green'; break
 		default:
-			color = 'gray';
+			color = 'green';
 		}
 
+		var c = 0;
 		/*
 		 * Draw line between each point
 		 */
-		var p = L.polyline(latLonArray, {color: color})
-				 .addTo(map)
-		  		 .bindPopup('Total distance: '+ ride.distance.toFixed(3) +' km<br>\
-		    Average speed: NULL'+ /*ride.averageSpeed.toFixed(1)*/ +' km/h<br>\
-		    Average acceleration: NULL'+ /*ride.averageAcc.toFixed(3)*/ +' m/s&sup2;<br>\
-		    Max speed: '+ ride.maxSpeed.toFixed(1) +' km/h<br>\
-		    Carbon Footprint: '+ ride.emission.toFixed(1) +' Kg eq. CO₂');
+		if (typeof ride !== 'undefined') {
+			var maxSpeed = (ride.maxSpeed != null) ? ride.maxSpeed.toFixed(1) : 'null';
+			var averageSpeed = (ride.averageSpeed != null) ? ride.averageSpeed.toFixed(1) : 'null';
+			var averageAcc = (ride.averageAcc != null) ? ride.averageAcc.toFixed(3) : 'null';
+			var p = L.polyline(latLonArray, {color: color})
+					.addTo(map)
+						.bindPopup('Total distance: '+ ride.distance.toFixed(3) +' km<br>\
+					Average speed: '+ averageSpeed +' km/h<br>\
+					Average acceleration: NULL'+ averageAcc +' m/s&sup2;<br>\
+					Max speed: '+ maxSpeed +' km/h<br>\
+					Carbon Footprint: '+ ride.emission.toFixed(1) +' Kg eq. CO₂');
+
+		}
+
+
 	});
 }

@@ -1,11 +1,12 @@
 {
   "name"         : "CFC",
-  "version"      : "0.1.1",
+  "version"      : "0.1.0",
   "description"  : "Carbon Footprint Calculator",
   "main"         : "server.js",
-  "author"       : "CHAOUCH-SOUFIANE",
+  "author"       : "Alexandre Bonhomme",
   "dependencies" : {
     "express"    : "~3.4.8",
     "request"    : "~2.33.0 "
+   
   }
 }

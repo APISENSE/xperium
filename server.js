@@ -61,7 +61,7 @@ app.configure(function() {
 
         //if(data.success) {
         if(data.length > 0) {
-        	var adapter = new RidesAdapter(data);
+        	var adapter = new RidesAdapter(data, min, max);
         	var rides = adapter.computeRides();
 
 	        res.json(rides);
