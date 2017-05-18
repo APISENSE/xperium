@@ -153,7 +153,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 
 				// Rides layers and clusters layers
 				clearMap(map);
-				addContent(map, data);
+			   addContent(map, data);
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
@@ -168,6 +168,86 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			map.addLayer(map._markersClusterGroup);
 		} else {
 			map.removeLayer(map._markersClusterGroup);
+		}
+	};
+	/**
+	 * Show/hide the global visulization clusters 
+	 */
+	$scope.toggleClustersContent = function() {
+		if ($scope.bVisualization) {
+			var userId = 1, // Math.floor(Math.random() * 100) + 1,
+			min  = $scope.dates.min,
+			max  = $scope.dates.max;
+
+		//$http.get('/api/' + userId + '/' + min.yyyymmdd() + '/' + max.yyyymmdd())
+		$http.get('/api/' + min.yyyymmdd() + '/' + max.yyyymmdd())
+			.success(function(data) {
+				$scope.rides = data;
+				// no rides
+				if(data.length <= 0) {
+					$(".alert").show();
+				} else {
+					$(".alert").hide();
+				}
+
+				/*
+				 * - Compute the global footprint
+				 * - Compute the global footprint per km
+				 * - Aggregate successive rides using the same transportation
+				 */
+				var totalEmission = 0.;
+				var totalDistance = 0.;
+				$scope.aggRides = [];
+				data.forEach(function (ride, index) {
+					totalEmission += ride.emission;
+					totalDistance += ride.distance;
+
+					// aggregation
+					var prev = $scope.aggRides.length - 1;
+					if(prev >= 0 && $scope.aggRides[prev].type === ride.type) {
+
+						$scope.aggRides[prev].distance += ride.distance;
+						$scope.aggRides[prev].emission += ride.emission;
+						$scope.aggRides[prev].numberOfRides += 1;
+
+					} else {
+						// define path color
+						var colorClass;
+						switch(ride.type) {
+						case 'train':
+							colorClass = 'bg-table-train'; break;
+						case 'car':
+							colorClass = 'bg-table-car'; break;
+						case 'walking':
+							colorClass = 'bg-table-walking'; break;
+						default:
+							colorClass = '';
+						}
+
+						$scope.aggRides.push({
+							type: ride.type,
+							distance: ride.distance,
+							emission: ride.emission,
+							numberOfRides: 1,
+							colorClass: colorClass
+						});
+					}
+				});
+
+				$scope.carbonFootprint = totalEmission.toFixed(1) + ' kg eq. CO₂';
+				$scope.carbonFootprintPerKm = (totalEmission/totalDistance).toFixed(2) + ' kg eq. CO₂ per km';
+
+				// Rides layers and clusters layers
+				clearMap(map);
+			   addContentCluster(map, data);
+			})
+			.error(function(data) {
+				console.log('Error: ' + data);
+			});
+		}
+		else {
+			clearMap(map);
+			$scope.getCarbonFootprint();
 		}
 	};
 
@@ -197,11 +277,11 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 						days: 1
 					},
 					bounds:{
-					    min: new Date(2017, 03, 01),
+					    min: new Date(2013, 10, 02),
 					    max: new Date()
 					  },
 					defaultValues: {
-						min: new Date(2017, 03, 01),
+						min: new Date(2013, 11, 28),
 						max: new Date()
 					},
 					range: {
@@ -256,6 +336,64 @@ function clearMap(m) {
 /**
  * Look over the rides list and draw rides
  */
+function addContentCluster(map, rides) {
+	map._markersClusterGroup.clearLayers();
+
+
+	rides.forEach(function(ride) {
+		/*
+		 * Build a array of all position and make markers
+		 * to give some information about the current position (speed, etc.)
+		 */
+		var latLonArray = [],
+			  tmpPoint = null,
+				calcDistance = 0;
+		ride.coordinates.forEach(function(coord, index) {
+			var latlng = L.latLng(coord.latitude, coord.longitude)
+
+			if (null == tmpPoint) {
+				tmpPoint = latlng;
+				//console.log('here!');
+				latLonArray.push( latlng );
+			} else {
+				calcDistance = distance(tmpPoint.lat, tmpPoint.lng, latlng.lat, latlng.lng);
+				if (calcDistance > 8) {
+						latLonArray.push( latlng );
+				}
+			}
+			tmpPoint = latlng;
+
+			map._markersClusterGroup.addLayer( new L.Marker(latlng) );
+		});
+
+		console.log(latLonArray);
+
+		// define path color
+
+		var color ='black';
+		/*
+		 * Draw line between each point
+		 */
+		var points = {'train' : null, 'car' : null, 'walking' : null};
+		if (typeof ride !== 'undefined') {
+			var maxSpeed = (ride.maxSpeed != null) ? ride.maxSpeed.toFixed(1) : 'null';
+			var averageSpeed = (ride.averageSpeed != null) ? ride.averageSpeed.toFixed(1) : 'null';
+			var averageAcc = (ride.averageAcc != null) ? ride.averageAcc.toFixed(3) : 'null';
+			var p = L.polyline(latLonArray, {color: color})
+					.addTo(map)
+						.bindPopup('Total distance: '+ ride.distance.toFixed(3) +' km<br>\
+					Average speed: '+ averageSpeed +' km/h<br>\
+					Average acceleration: NULL'+ averageAcc +' m/s&sup2;<br>\
+					Max speed: '+ maxSpeed +' km/h<br>\
+					Carbon Footprint: '+ ride.emission.toFixed(1) +' Kg eq. CO₂');
+		}
+
+
+	});
+}
+/**
+ * Look over the rides list and draw rides
+ */
 function addContent(map, rides) {
 	map._markersClusterGroup.clearLayers();
 
@@ -305,4 +443,16 @@ function addContent(map, rides) {
 
 
 	});
+}
+
+
+function distance(lat1, lon1, lat2, lon2) {
+	var p = 0.017453292
+	519943295;    // Math.PI / 180
+	var c = Math.cos;
+	var a = 0.5 - c((lat2 - lat1) * p)/2 +
+	    c(lat1 * p) * c(lat2 * p) *
+	    (1 - c((lon2 - lon1) * p))/2;
+
+	return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
 }
