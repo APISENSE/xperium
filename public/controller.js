@@ -138,6 +138,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 							colorClass = '';
 						}
 
+						/* add informations in reports array */
 						$scope.aggRides.push({
 							type: ride.type,
 							distance: ride.distance,
@@ -147,7 +148,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 						});
 					}
 				});
-
+				/* add the information to side bar*/
 				$scope.carbonFootprint = totalEmission.toFixed(1) + ' kg eq. CO₂';
 				$scope.carbonFootprintPerKm = (totalEmission/totalDistance).toFixed(2) + ' kg eq. CO₂ per km';
 
@@ -262,7 +263,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 		}
 	};
 })
-
+/* update date slider */
 .directive('cfcDateslider', function() {
     return {
         restrict: 'A',
@@ -277,11 +278,11 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 						days: 1
 					},
 					bounds:{
-					    min: new Date(2013, 10, 02),
+					    min: new Date(2017, 03, 01),
 					    max: new Date()
 					  },
 					defaultValues: {
-						min: new Date(2013, 11, 28),
+						min: new Date(2017, 03, 01),
 						max: new Date()
 					},
 					range: {
@@ -290,9 +291,6 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			    		},
 			    	}
 			    });
-
-
-
 
 			    element.on('valuesChanged', function(e, data) {
 			    	// Update slider view
@@ -309,6 +307,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			    	}
 
 			    	// Update data
+			    	/*VIEW ALL RIDES IN MAP*/
 			    	$scope.getCarbonFootprint($scope.userId);
 			    });
             });
@@ -332,9 +331,23 @@ function clearMap(m) {
         }
     }
 }
+ 
+/*  Distance between all stops and the user location
+ * Link: https://jsperf.com/haversine-formula-2
+ */
+function distance(lat1, lon1, lat2, lon2) {
+	var p = 0.017453292
+	519943295;    // Math.PI / 180 radian
+	var c = Math.cos;
+	var a = 0.5 - c((lat2 - lat1) * p)/2 +
+	    c(lat1 * p) * c(lat2 * p) *
+	    (1 - c((lon2 - lon1) * p))/2;
 
+	return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
+}
 /**
- * Look over the rides list and draw rides
+ * Look over the rides list and draw ridesCluster 
+ * marker(dessin)
  */
 function addContentCluster(map, rides) {
 	map._markersClusterGroup.clearLayers();
@@ -368,9 +381,14 @@ function addContentCluster(map, rides) {
 
 		console.log(latLonArray);
 
-		// define path color
+		/*define path color*/
+		//var color ='black';
+		 var polylineOptions = {
+               color: 'black',
+               weight: 10,
+               opacity: 12
+             };
 
-		var color ='black';
 		/*
 		 * Draw line between each point
 		 */
@@ -379,7 +397,7 @@ function addContentCluster(map, rides) {
 			var maxSpeed = (ride.maxSpeed != null) ? ride.maxSpeed.toFixed(1) : 'null';
 			var averageSpeed = (ride.averageSpeed != null) ? ride.averageSpeed.toFixed(1) : 'null';
 			var averageAcc = (ride.averageAcc != null) ? ride.averageAcc.toFixed(3) : 'null';
-			var p = L.polyline(latLonArray, {color: color})
+			var p = L.polyline(latLonArray,polylineOptions)
 					.addTo(map)
 						.bindPopup('Total distance: '+ ride.distance.toFixed(3) +' km<br>\
 					Average speed: '+ averageSpeed +' km/h<br>\
@@ -443,16 +461,4 @@ function addContent(map, rides) {
 
 
 	});
-}
-
-
-function distance(lat1, lon1, lat2, lon2) {
-	var p = 0.017453292
-	519943295;    // Math.PI / 180
-	var c = Math.cos;
-	var a = 0.5 - c((lat2 - lat1) * p)/2 +
-	    c(lat1 * p) * c(lat2 * p) *
-	    (1 - c((lon2 - lon1) * p))/2;
-
-	return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
 }

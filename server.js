@@ -63,7 +63,7 @@ app.configure(function() {
         if(data.length > 0) {
         	var adapter = new RidesAdapter(data, min, max);
         	var rides = adapter.computeRides();
-
+         /*retourn the  rides in json format  */
 	        res.json(rides);
         }
     });
