@@ -88,7 +88,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 	 * Get all rides and associate informations
 	 */
 	$scope.getCarbonFootprint = function() {
-		var userId = 1, // Math.floor(Math.random() * 100) + 1,
+		
 			min  = $scope.dates.min,
 			max  = $scope.dates.max;
 		
@@ -174,7 +174,6 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 	 */
 	$scope.toggleClustersContent = function() {
 		if ($scope.bVisualization) {
-			var userId = 1, // Math.floor(Math.random() * 100) + 1,
 			min  = $scope.dates.min,
 			max  = $scope.dates.max;
 			
@@ -298,14 +297,10 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			    	// update users list
 			    	$scope.updateUsersList();
 
-			    	// No user selected
-			    	if ($scope.userId == undefined) {
-			    		
-			    	}
 
 			    	// Update data
 			    	/*VIEW ALL RIDES IN MAP*/
-			    	$scope.getCarbonFootprint($scope.userId);
+			    	$scope.getCarbonFootprint();
 			    });
             });
         }
