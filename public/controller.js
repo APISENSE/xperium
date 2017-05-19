@@ -62,7 +62,6 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 				dateMax = dateMax.getYear() + "/" + dateMax.getMonth() + "/" + dateMax.getDay()
 
 				if ((tmpDate >= dateMin) && (tmpDate <= dateMax)) {
-					//$http.get('/api/guest'+ i +'/' + $scope.dates.min.yyyymmdd() + '/' + $scope.dates.max.yyyymmdd())
 					$http.get('/api/' + $scope.dates.min.yyyymmdd() + '/' + $scope.dates.max.yyyymmdd())
 					.success(function(data) {
 						if(data.length > 0) {
@@ -92,8 +91,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 		var userId = 1, // Math.floor(Math.random() * 100) + 1,
 			min  = $scope.dates.min,
 			max  = $scope.dates.max;
-
-		//$http.get('/api/' + userId + '/' + min.yyyymmdd() + '/' + max.yyyymmdd())
+		
 		$http.get('/api/' + min.yyyymmdd() + '/' + max.yyyymmdd())
 			.success(function(data) {
 				$scope.rides = data;
@@ -179,8 +177,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 			var userId = 1, // Math.floor(Math.random() * 100) + 1,
 			min  = $scope.dates.min,
 			max  = $scope.dates.max;
-
-		//$http.get('/api/' + userId + '/' + min.yyyymmdd() + '/' + max.yyyymmdd())
+			
 		$http.get('/api/' + min.yyyymmdd() + '/' + max.yyyymmdd())
 			.success(function(data) {
 				$scope.rides = data;
@@ -303,7 +300,7 @@ angular.module('CarbonFootprintCalculator', ['ui.bootstrap.buttons'])
 
 			    	// No user selected
 			    	if ($scope.userId == undefined) {
-			    		//return;
+			    		
 			    	}
 
 			    	// Update data
@@ -366,7 +363,6 @@ function addContentCluster(map, rides) {
 
 			if (null == tmpPoint) {
 				tmpPoint = latlng;
-				//console.log('here!');
 				latLonArray.push( latlng );
 			} else {
 				calcDistance = distance(tmpPoint.lat, tmpPoint.lng, latlng.lat, latlng.lng);
@@ -382,7 +378,6 @@ function addContentCluster(map, rides) {
 		console.log(latLonArray);
 
 		/*define path color*/
-		//var color ='black';
 		 var polylineOptions = {
                color: 'black',
                weight: 10,
