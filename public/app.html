@@ -42,7 +42,9 @@
             <div class="form-group">
               <button type="button" class="btn btn-success" btn-checkbox ng-model="bCycleMap"  ng-change="toggleCycleMap()">Cycle paths</button>
               <button type="button" class="btn btn-warning" btn-checkbox ng-model="bClusters"  ng-change="toggleClusters()">Clusters</button>
-              <select id="select-user" class="form-control" ng-model="userId" ng-options="u.user as u.user for u in users" ng-change="getCarbonFootprint()">
+              <button type="button" class="btn btn-success" btn-checkbox ng-model="bVisualization"  ng-change="toggleClustersContent()">Visualization</button>
+              
+              <select style="display:none;" id="select-user" class="form-control" ng-model="userId" ng-options="u.user as u.user for u in users" ng-change="getCarbonFootprint()">
                 <option value="">-- Please select an user --</option>
               </select>
             </div>
@@ -95,8 +97,12 @@
       		</div>
       		<div class="col-md-10">
   					<div class="progress">
-  						<div class="progress-bar progress-bar-plane" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+  						<div class="progress-bar progress-bar-plane"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+       
+              </div>
   					</div>
+
+
   				</div>
   			</div>
   			<div class="row">
@@ -125,7 +131,9 @@
       		</div>
       		<div class="col-md-10">
   					<div class="progress">
-  						<div class="progress-bar progress-bar-train" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%"></div>
+  						<div class="progress-bar progress-bar-train" id="blue" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%">
+      
+              </div>
   					</div>
   				</div>
   			</div>
